@@ -1,4 +1,4 @@
-package com.learn.science.ioc;
+package com.lagou.ioc;
 
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;

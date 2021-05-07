@@ -5,8 +5,8 @@
 http://www.springframework.org/schema/beans
 https://www.springframework.org/schema/beans/spring-beans.xsd
 ">
-	<bean id="lagouBean" class="com.example.lagou.LagouBean"/>
+	<bean id="lagouBean" class="com.lagou.ioc.LagouBean"/>
 	<bean id="myBeanFactoryPostProcessor"
-		  class="com.example.lagou.MyBeanFactoryPostProcessor"/>
-	<bean id="myBeanPostProcessor" class="com.example.lagou.MyBeanPostProcessor"/>
+		  class="com.lagou.ioc.MyBeanFactoryPostProcessor"/>
+	<bean id="myBeanPostProcessor" class="com.lagou.ioc.MyBeanPostProcessor"/>
 </beans>
