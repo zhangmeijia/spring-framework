@@ -837,12 +837,18 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		// Iterate over a copy to allow for init methods which in turn register new bean definitions.
 		// While this may not be part of the regular factory bootstrap, it does otherwise work fine.
+		// 所有的bean的名字
 		List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
 
 		// Trigger initialization of all non-lazy singleton beans...
+		// 触发所有非延迟加载单例bean的初始化，主要步骤为getBean
 		for (String beanName : beanNames) {
+			// 合并父BeanDefinition对象
+			// map.get(beanName)
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
+			// 判断不是抽象的，是单例的，不是延迟加载的
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
+				// 如果是FactoryBean则加&
 				if (isFactoryBean(beanName)) {
 					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
 					if (bean instanceof FactoryBean) {
@@ -863,6 +869,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					}
 				}
 				else {
+					// 实例化当前bean
 					getBean(beanName);
 				}
 			}
@@ -908,7 +915,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 		}
 
-		BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
+		BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);// 判断存不存在
 		if (existingDefinition != null) {
 			if (!isAllowBeanDefinitionOverriding()) {
 				throw new BeanDefinitionOverrideException(beanName, beanDefinition, existingDefinition);
@@ -938,7 +945,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			this.beanDefinitionMap.put(beanName, beanDefinition);
 		}
 		else {
+			// bean是否已经开始创建
 			if (hasBeanCreationStarted()) {
+				// 已经开始创建
 				// Cannot modify startup-time collection elements anymore (for stable iteration)
 				synchronized (this.beanDefinitionMap) {
 					this.beanDefinitionMap.put(beanName, beanDefinition);
@@ -950,9 +959,10 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				}
 			}
 			else {
+				// 这就是所谓的注册
 				// Still in startup registration phase
-				this.beanDefinitionMap.put(beanName, beanDefinition);
-				this.beanDefinitionNames.add(beanName);
+				this.beanDefinitionMap.put(beanName, beanDefinition); // 放入map
+				this.beanDefinitionNames.add(beanName); // 名字放入list
 				removeManualSingletonName(beanName);
 			}
 			this.frozenBeanDefinitionNames = null;

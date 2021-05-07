@@ -117,17 +117,30 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * bean factory, shutting down the previous bean factory (if any) and
 	 * initializing a fresh bean factory for the next phase of the context's lifecycle.
 	 */
+	/**
+	 * 对 bean factory 执行刷新操作，关闭以前的 bean factory（如果有）
+	 * 并且为 context 初始化一个新的 bean factory
+	 * @throws BeansException
+	 */
 	@Override
 	protected final void refreshBeanFactory() throws BeansException {
+		// 判断是否已有bean factory
 		if (hasBeanFactory()) {
+			// 销毁 beans
 			destroyBeans();
+			// 关闭 bean factory
 			closeBeanFactory();
 		}
 		try {
+			// 实例化 DefaultListableBeanFactory
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
+			// 设置序列化id
 			beanFactory.setSerializationId(getId());
+			// 自定义bean工厂的一些属性（是否覆盖，是否允许循环依赖）
 			customizeBeanFactory(beanFactory);
+			// 加载注册应用中的BeanDefinitions
 			loadBeanDefinitions(beanFactory);
+			// 赋值当前的 bean factory
 			this.beanFactory = beanFactory;
 		}
 		catch (IOException ex) {
@@ -212,9 +225,12 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * @see DefaultListableBeanFactory#setAllowEagerClassLoading
 	 */
 	protected void customizeBeanFactory(DefaultListableBeanFactory beanFactory) {
+		// allowBeanDefinitionOverriding： 是否允许BeanDefinition被覆盖，有时候xml里面的bean的id是一样的时候，是否允许被覆盖
+		// 该属性可以由xml进行配置
 		if (this.allowBeanDefinitionOverriding != null) {
 			beanFactory.setAllowBeanDefinitionOverriding(this.allowBeanDefinitionOverriding);
 		}
+		// 是否允许循环依赖  ！！！！！！！！！！非常重要
 		if (this.allowCircularReferences != null) {
 			beanFactory.setAllowCircularReferences(this.allowCircularReferences);
 		}

@@ -26,4 +26,6 @@ public class TestIoC {
         System.out.println(lagouBean);
     }
 
+
+
 }
