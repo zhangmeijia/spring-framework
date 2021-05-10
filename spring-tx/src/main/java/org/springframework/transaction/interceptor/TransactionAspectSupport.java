@@ -279,13 +279,16 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			final InvocationCallback invocation) throws Throwable {
 
 		// If the transaction attribute is null, the method is non-transactional.
+		// 获得属性解析器，即zai ProxyTransactionManagerConfiguration容器配置类中注册事务拦截器时注入的
 		TransactionAttributeSource tas = getTransactionAttributeSource();
 		final TransactionAttribute txAttr = (tas != null ? tas.getTransactionAttribute(method, targetClass) : null);
+		// 获得事务管理器
 		final PlatformTransactionManager tm = determineTransactionManager(txAttr);
 		final String joinpointIdentification = methodIdentification(method, targetClass, txAttr);
 
 		if (txAttr == null || !(tm instanceof CallbackPreferringPlatformTransactionManager)) {
 			// Standard transaction demarcation with getTransaction and commit/rollback calls.
+			// 创建事务  开启事务
 			TransactionInfo txInfo = createTransactionIfNecessary(tm, txAttr, joinpointIdentification);
 
 			Object retVal;
@@ -296,12 +299,14 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			}
 			catch (Throwable ex) {
 				// target invocation exception
+				// 如果目标方法抛异常，会执行completeTransactionAfterThrowing（获取事务管理器，执行回滚事务操作）
 				completeTransactionAfterThrowing(txInfo, ex);
-				throw ex;
+				throw ex; // 异常抛出去
 			}
 			finally {
 				cleanupTransactionInfo(txInfo);
 			}
+			// 如果目标方法正常执行，则会执行commitTransactionAfterReturning（获取事务管理器，执行提交事务操作）
 			commitTransactionAfterReturning(txInfo);
 			return retVal;
 		}
